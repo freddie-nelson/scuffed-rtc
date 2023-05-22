@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "noImplicitAny": true,
+        "outDir": "./dist",
+        "sourceMap": true,
+        "rootDir": "src",
+        "target": "es6",
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "strict": true,
+        "paths": {
+            "@/*": ["src/*"]
+        }
+    },
+    "include": ["src/**/*", "../@types/**/*"]
+}
