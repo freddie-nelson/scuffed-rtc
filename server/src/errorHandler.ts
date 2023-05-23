@@ -17,7 +17,6 @@ export const errorHandler = (handler: any) => {
 
     return (...args: any[]) => {
         try {
-            // @ts-ignore
             const ret = handler.apply(this, args);
             if (ret && typeof ret.catch === "function") {
                 // async handler
