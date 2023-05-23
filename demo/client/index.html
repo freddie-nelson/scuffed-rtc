@@ -11,8 +11,6 @@
           font-family: sans-serif;
       }
     </style>
-
-    <script src="../../client/dist/index.min.js"></script>
   </head>
   <body>
     <h1>scuffed-rtc demo</h1>
@@ -36,62 +34,6 @@
 
     <div id="messages"></div>
 
-    <script>
-      const connectionStatus = document.getElementById("connection-status");
-
-      const currentRoom = document.getElementById("currentRoom");
-      const roomInput = document.getElementById("roomInput");
-      const createRoomButton = document.getElementById("createRoomButton");
-      const joinRoomButton = document.getElementById("joinRoomButton");
-      const leaveRoomButton = document.getElementById("leaveRoomButton");
-
-      const messageInput = document.getElementById("messageInput");
-      const sendMessageButton = document.getElementById("sendMessageButton");
-      const messages = document.getElementById("messages");
-
-      createRoomButton.addEventListener("click", async () => {
-        const room = roomInput.value || undefined;
-        currentRoom.innerText = `Current Room: ${JSON.stringify(await client.createRoom(room))}`;
-      });
-
-      joinRoomButton.addEventListener("click", async () => {
-        const room = roomInput.value;
-        currentRoom.innerText = `Current Room: ${JSON.stringify(await client.joinRoom(room))}`;
-      });
-
-      leaveRoomButton.addEventListener("click", async () => {
-        await client.leaveRoom();
-
-        currentRoom.innerText = `Current Room: N/A`;
-      });
-
-      sendMessageButton.addEventListener("click", async () => {
-        const message = messageInput.value;
-        client.emit("msg", { message, time: Date.now() });
-      });
-
-      (async () => {
-        client = new ScuffedRTCClient("demo", "http://localhost:3000");
-
-        connectionStatus.innerText = "connecting...";
-        try {
-          await client.connect();
-          connectionStatus.innerText = "connected";
-          console.log("connected to server");
-        } catch (error) {
-          connectionStatus.innerText = `failed to connect due to '${error.message}'`;
-        }
-
-        client.on("msg", (data) => {
-          const message = document.createElement("p");
-          message.innerText = `[${new Date().toISOString()}]: ${JSON.stringify(data)}`;
-          messages.appendChild(message);
-        });
-
-        client.onRoomUpdate = (room) => {
-          currentRoom.innerText = `Current Room: ${JSON.stringify(room)}`;
-        };
-      })();
-    </script>
+    <script src="index.mjs" type="module"></script>
   </body>
 </html>

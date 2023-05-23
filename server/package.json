@@ -3,6 +3,8 @@
     "version": "1.0.0",
     "main": "dist/index.min.js",
     "module": "dist/index.esm.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
     "author": "Freddie Nelson <47699795+freddie-nelson@users.noreply.github.com>",
     "license": "MIT",
     "scripts": {
@@ -12,7 +14,6 @@
         "lint:fix": "eslint src --fix",
         "prepare": "husky install"
     },
-    "type": "module",
     "dependencies": {
         "socket.io": "^4.6.1",
         "zod": "^3.21.4"

@@ -1,0 +1,1 @@
+tsc --lib dom --module esnext ./index.mts

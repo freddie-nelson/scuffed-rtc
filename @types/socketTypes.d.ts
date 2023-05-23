@@ -27,7 +27,7 @@ export interface ClientToServerEvents {
   "room:join": (id: string, response: (success: boolean, roomOrError: string | ClientRoom) => void) => void;
   "room:leave": (response: (success: boolean, error?: string) => void) => void;
   "room:event": (
-    eventInfo: { event: string; data: string },
+    eventInfo: { event: string; data: any },
     response: (success: boolean, error?: string) => void
   ) => void;
 }

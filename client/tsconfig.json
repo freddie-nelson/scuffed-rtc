@@ -10,7 +10,9 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"]
-        }
+        },
+        "declaration": true,
+        "declarationMap": true
     },
     "include": ["src/**/*", "../@types/**/*"]
 }

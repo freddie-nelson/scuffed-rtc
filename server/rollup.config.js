@@ -13,12 +13,12 @@ const options = {
     output: [
         {
             file: "dist/index.js",
-            format: "cjs",
+            format: "esm",
             sourcemap: true,
         },
         {
-            file: "dist/index.esm.js",
-            format: "esm",
+            file: "dist/index.cjs",
+            format: "cjs",
             sourcemap: true,
         },
         {
@@ -34,7 +34,9 @@ const options = {
         typescript(),
         typescriptPaths(),
         json(),
-        eslint(),
+        eslint({
+            fix: true,
+        }),
         resolve({
             node: true,
         }),

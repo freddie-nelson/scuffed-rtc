@@ -11,7 +11,9 @@
         "strict": true,
         "paths": {
             "@/*": ["src/*"]
-        }
+        },
+        "declaration": true,
+        "declarationMap": true
     },
     "include": ["src/**/*", "../@types/**/*"]
 }

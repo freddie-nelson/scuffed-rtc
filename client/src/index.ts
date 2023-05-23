@@ -7,7 +7,24 @@ import {
 } from "../../@types/socketTypes";
 import { generateId } from "./id";
 
-export default class Client {
+export interface EventInfo<T> {
+    data: T;
+    serverTime: number;
+    sender: string;
+}
+
+export interface DefaultSToCEvents {
+    [index: string]: any;
+}
+
+export interface DefaultCToSEvents {
+    [index: string]: any;
+}
+
+export default class Client<
+    SToCEvents extends DefaultCToSEvents,
+    CToSEvents extends DefaultCToSEvents,
+> {
     private namespace: string;
     private serverUrl: URL;
     private socket: Socket<ServerToClientEvents, ClientToServerEvents> | null =
@@ -15,7 +32,13 @@ export default class Client {
 
     private room: ClientRoom | null = null;
 
-    private eventMap: Map<string, ((...args: any[]) => void)[]> = new Map();
+    private eventMap: Partial<{
+        [K in keyof SToCEvents]: ((info: EventInfo<SToCEvents[K]>) => void)[];
+    }> = {};
+    private onAnyListeners: (<T extends keyof SToCEvents>(
+        event: T,
+        info: EventInfo<SToCEvents[T]>,
+    ) => void)[] = [];
 
     constructor(namespace: string, serverUrl: string | URL) {
         this.namespace = namespace;
@@ -58,7 +81,10 @@ export default class Client {
         this.socket = null;
     }
 
-    onRoomUpdate = (room: ClientRoom) => {};
+    onRoomUpdate = (room: ClientRoom, serverTime: number) => {
+        room;
+        serverTime;
+    };
 
     private addSocketListeners() {
         if (!this.socket || !this.socket.connected)
@@ -66,11 +92,17 @@ export default class Client {
 
         this.socket.on("room:update", (room, serverTime) => {
             this.room = room;
-            this.onRoomUpdate(room);
+            if (this.onRoomUpdate) this.onRoomUpdate(room, serverTime);
         });
 
         this.socket.on("room:event", (eventInfo) => {
-            this.handleRoomEvent(eventInfo);
+            const event = eventInfo.event as keyof SToCEvents;
+            if (!this.eventMap[event]) return;
+
+            this.handleRoomEvent({
+                event,
+                ...eventInfo,
+            });
         });
     }
 
@@ -136,21 +168,21 @@ export default class Client {
 
     // room user event handlers
     private handleRoomEvent(eventInfo: {
-        event: string;
-        data: string;
+        event: keyof SToCEvents;
+        data: any;
         sender: string;
         serverTime: number;
     }) {
         const { event, data, sender, serverTime } = eventInfo;
 
-        const listeners = this.eventMap.get(event);
+        const listeners = this.eventMap[event];
         if (listeners) {
             for (const listener of listeners) {
                 listener({ data, sender, serverTime });
             }
         }
 
-        const anyListeners = this.eventMap.get("*");
+        const anyListeners = this.onAnyListeners;
         if (anyListeners) {
             for (const listener of anyListeners) {
                 listener(event, { data, sender, serverTime });
@@ -158,38 +190,58 @@ export default class Client {
         }
     }
 
-    on(event: string, callback: (...args: any[]) => void) {
-        if (!this.eventMap.has(event)) this.eventMap.set(event, []);
+    on<T extends keyof SToCEvents>(
+        event: T,
+        callback: (eventInfo: EventInfo<SToCEvents[T]>) => void,
+    ) {
+        if (!this.eventMap[event]) this.eventMap[event] = [];
 
-        const listeners = this.eventMap.get(event);
+        const listeners = this.eventMap[event];
         if (listeners.indexOf(callback) !== -1)
             throw new Error("Callback already exists.");
 
         listeners.push(callback);
     }
 
-    onAny(callback: (event: string, ...args: any[]) => void) {
-        this.on("*", callback);
+    onAny<T extends keyof SToCEvents>(
+        callback: (event: T, eventInfo: EventInfo<SToCEvents[T]>) => void,
+    ) {
+        // @ts-expect-error - event is a valid key
+        this.onAnyListeners.push(callback);
     }
 
-    off(event: string, callback: (...args: any[]) => void) {
-        if (!this.eventMap.has(event)) throw new Error("Event does not exist.");
+    off<T extends keyof SToCEvents>(
+        event: T,
+        callback: (eventInfo: EventInfo<SToCEvents[T]>) => void,
+    ) {
+        if (!this.eventMap[event]) throw new Error("Event does not exist.");
 
-        const eventCallbacks = this.eventMap.get(event)!;
+        const eventCallbacks = this.eventMap[event];
         const i = eventCallbacks.indexOf(callback);
+        if (i === -1) throw new Error("Callback does not exist.");
+
         eventCallbacks.splice(i, 1);
     }
 
-    offAny(callback: (event: string, ...args: any[]) => void) {
-        this.off("*", callback);
+    offAny<T extends keyof SToCEvents>(
+        callback: (event: T, eventInfo: EventInfo<SToCEvents[T]>) => void,
+    ) {
+        // @ts-expect-error - event is a valid key
+        const i = this.onAnyListeners.indexOf(callback);
+        if (i === -1) throw new Error("Callback does not exist.");
+
+        this.onAnyListeners.splice(i, 1);
     }
 
-    removeAllListeners(event: string) {
-        this.eventMap.set(event, []);
+    removeAllListeners(event: keyof SToCEvents) {
+        this.eventMap[event] = [];
     }
 
     // user events
-    emit(event: string, data: any): Promise<void> {
+    emit<T extends keyof CToSEvents>(
+        event: T,
+        data: CToSEvents[T],
+    ): Promise<void> {
         if (!this.socket || !this.socket.connected)
             throw new Error("Client is not connected.");
 
@@ -198,7 +250,7 @@ export default class Client {
         return new Promise<void>((resolve, reject) => {
             this.socket.emit(
                 "room:event",
-                { event, data },
+                { event: event.toString(), data },
                 (success, error) => {
                     if (!success) reject(new Error(error as string));
                     else resolve();
