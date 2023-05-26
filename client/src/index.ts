@@ -4,7 +4,7 @@ import {
     ClientToServerEvents,
     RoomOptions,
     ServerToClientEvents,
-} from "../../@types/socketTypes";
+} from "../@types/socketTypes";
 import { generateId } from "./id";
 
 export interface EventInfo<T> {

@@ -1,7 +1,7 @@
 {
     "name": "scuffed-rtc-server",
-    "version": "1.0.2",
-    "main": "dist/index.min.js",
+    "version": "1.0.3",
+    "main": "dist/index.js",
     "module": "dist/index.esm.js",
     "types": "dist/index.d.ts",
     "author": "Freddie Nelson <47699795+freddie-nelson@users.noreply.github.com>",

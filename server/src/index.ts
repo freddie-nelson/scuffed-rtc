@@ -8,7 +8,7 @@ import {
     RoomOptions,
     ServerToClientEvents,
     SocketData,
-} from "../../@types/socketTypes";
+} from "../@types/socketTypes";
 import { z } from "zod";
 import { validateId } from "./id";
 import { errorHandler } from "./errorHandler";
