@@ -1,15 +1,14 @@
 {
     "name": "scuffed-rtc-client",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "main": "dist/index.cjs",
     "module": "dist/index.js",
     "types": "dist/index.d.ts",
-    "type": "module",
     "author": "Freddie Nelson <47699795+freddie-nelson@users.noreply.github.com>",
     "license": "MIT",
     "scripts": {
-        "build": "rollup -c",
-        "dev": "rollup -c -w",
+        "build": "rollup -c --bundleConfigAsCjs",
+        "dev": "rollup -c -w --bundleConfigAsCjs",
         "lint": "eslint src",
         "lint:fix": "eslint src --fix"
     },
