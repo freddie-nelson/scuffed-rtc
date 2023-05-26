@@ -1,1 +1,1 @@
-tsc --lib dom --module esnext ./index.mts
+tsc --lib es6,dom ./index.mts

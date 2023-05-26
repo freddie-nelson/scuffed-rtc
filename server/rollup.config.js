@@ -13,12 +13,12 @@ const options = {
     output: [
         {
             file: "dist/index.js",
-            format: "esm",
+            format: "cjs",
             sourcemap: true,
         },
         {
-            file: "dist/index.cjs",
-            format: "cjs",
+            file: "dist/index.esm.js",
+            format: "esm",
             sourcemap: true,
         },
         {

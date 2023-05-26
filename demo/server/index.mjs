@@ -1,4 +1,4 @@
-import Server from "../../server/dist/index.js";
+import Server from "../../server/dist/index.esm.js";
 
 (async () => {
   const server = new Server(["demo"]);
