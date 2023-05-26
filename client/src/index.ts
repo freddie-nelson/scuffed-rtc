@@ -271,4 +271,16 @@ export default class Client<
     getSocket() {
         return this.socket;
     }
+
+    getRoom() {
+        return this.room;
+    }
+
+    isInRoom() {
+        return !!this.room;
+    }
+
+    isHost() {
+        return this.isInRoom() && this.room?.host === this.socket.id;
+    }
 }
