@@ -39,6 +39,7 @@ export const serverRoomToClientRoom = (room: ServerRoom): ClientRoom => {
 };
 
 export default class Server {
+    protected http: ReturnType<typeof createServer> | null = null;
     protected io: SocketServer | null = null;
 
     protected clients: Map<TypedSocket, Client> = new Map();
@@ -68,21 +69,35 @@ export default class Server {
     }
 
     start(port: number, opts: Partial<ServerOptions> = {}) {
-        const httpServer = createServer();
+        if (this.http || this.io) throw new Error("Server is already started.");
+
+        this.http = createServer();
         this.io = new SocketServer<
             ClientToServerEvents,
             ServerToClientEvents,
             InterServerEvents,
             SocketData
-        >(httpServer, opts);
+        >(this.http, opts);
 
         this.addIoListeners();
 
         return new Promise<void>((resolve, reject) => {
-            httpServer.listen(port, () => {
+            if (!this.http) return reject(new Error("Server is not started."));
+
+            this.http.listen(port, () => {
                 resolve();
             });
         });
+    }
+
+    async stop() {
+        if (!this.http || !this.io) throw new Error("Server is not started.");
+
+        await new Promise((resolve) => this.io?.close(resolve));
+        this.io = null;
+
+        await new Promise((resolve) => this.http?.close(resolve));
+        this.http = null;
     }
 
     private addIoListeners() {
