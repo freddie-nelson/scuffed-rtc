@@ -56,6 +56,7 @@ export default class Server {
                 .min(1)
                 .max(this.MAX_ROOM_CONNECTIONS)
                 .default(this.MAX_ROOM_CONNECTIONS),
+            meta: z.record(z.any()).optional(),
         })
         .required();
 
