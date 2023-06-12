@@ -5,6 +5,9 @@ export interface ServerToClientEvents {
 
 export interface RoomOptions {
   maxConnections: number;
+  meta?: {
+    [key: string]: any;
+  };
 }
 
 export interface Room<M> {
