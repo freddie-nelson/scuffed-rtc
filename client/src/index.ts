@@ -106,6 +106,22 @@ export default class Client<
         });
     }
 
+    // namespace events
+    getPublicRooms(): Promise<ClientRoom[]> {
+        if (!this.socket || !this.socket.connected)
+            throw new Error("Client is not connected.");
+
+        return new Promise((resolve, reject) => {
+            this.socket.emit(
+                "namespace:get-public-rooms",
+                (success, roomsOrError) => {
+                    if (!success) reject(new Error(roomsOrError as string));
+                    else resolve(roomsOrError as ClientRoom[]);
+                },
+            );
+        });
+    }
+
     // room events
     createRoom(
         id = generateId(5),

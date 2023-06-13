@@ -56,6 +56,7 @@ export default class Server {
                 .min(1)
                 .max(this.MAX_ROOM_CONNECTIONS)
                 .default(this.MAX_ROOM_CONNECTIONS),
+            public: z.boolean().default(false),
             meta: z.record(z.any()).optional(),
         })
         .required();
@@ -126,6 +127,19 @@ export default class Server {
                 this.joinNamespace(socket, namespace);
                 response(true);
             }) as ClientToServerEvents["namespace:join"]),
+        );
+
+        socket.on(
+            "namespace:get-public-rooms",
+            errorHandler(((response) => {
+                const rooms = this.getAccessibleRooms(socket);
+                response(
+                    true,
+                    Array.from(rooms.values())
+                        .map(serverRoomToClientRoom)
+                        .filter((room) => room.opts.public),
+                );
+            }) as ClientToServerEvents["namespace:get-public-rooms"]),
         );
 
         // room events

@@ -5,6 +5,7 @@ export interface ServerToClientEvents {
 
 export interface RoomOptions {
   maxConnections: number;
+  public: boolean;
   meta?: {
     [key: string]: any;
   };
@@ -21,6 +22,9 @@ export type ClientRoom = Room<string>;
 
 export interface ClientToServerEvents {
   "namespace:join": (namespace: string, response: (success: boolean, error?: string) => void) => void;
+  "namespace:get-public-rooms": (
+    response: (success: boolean, roomsOrError?: string | ClientRoom[]) => void
+  ) => void;
 
   "room:create": (
     id: string,
